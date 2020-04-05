@@ -19,3 +19,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# secret info
+firebase-key.json
+src/firebase.ts
