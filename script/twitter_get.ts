@@ -36,7 +36,7 @@ const twitterApiGet = function (url: string, params: any, user_id: string) {
                     new_since_id = tweetItem["id"];
 
                     //一つ一つのarray をDBに入れていく
-                   // await addDataToDb(array);
+                   await addDataToDb(array);
                 }
             });
             //since_id を最新のものに変更
