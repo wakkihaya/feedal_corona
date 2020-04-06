@@ -16,12 +16,36 @@ const twitterApiGet = function (url: string, params: any) {
 };
 
 var url: string = 'statuses/user_timeline';
-var params: any = {screen_name: 'suadd',include_rts: true,since_id:"1246315248434303000"};
+var params: any = {screen_name: 'suadd',include_rts: true, exclude_replies: true, since_id:"1246277346417504256"};
+
+const RequiredInfoGet = function (doc: any) {
+    return new Promise((resolve,reject)=>{
+        var array: any = {
+            url: "",
+            comment: "",
+            rt: null,
+            fav: null,
+        };
+        doc.forEach((tweetItem: any) =>{
+             //console.log(tweetItem["text"]);
+            //console.log(tweetItem["entities"]);
+
+            var entities = tweetItem["entities"];
+             if(entities["urls"].length != 0){             //entities のurls が空でなかったら、シェアしたlinkあり
+                 console.log(tweetItem["entities"]);
+                 array.url = entities["urls"][0].expanded_url;
+                 console.log(array.url);
+             }
+
+        })
+    })
+};
 
 (async ()=>{
     try {
-        const test = await twitterApiGet(url, params);
-        console.log(test);
+        const doc = await twitterApiGet(url, params);
+        await RequiredInfoGet(doc);
+        // console.log(doc)
     }catch (e) {
         console.log(e)
     }
