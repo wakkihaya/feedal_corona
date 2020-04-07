@@ -20,10 +20,20 @@ const twitterApiGet = function (url: string, params: any, user_id: string) {
                 createdAt: "",
                 user_id: user_id
             };
-            var new_since_id: string = "";
+            if(error){
+                console.log(error)
+            }
+            var i = 0;
             response.forEach(async(tweetItem: any) =>{
-                //console.log(tweetItem["text"]);
-                //console.log(tweetItem["entities"]);
+                // console.log(tweetItem["text"]);
+                // console.log(tweetItem["entities"]);
+
+                if(i == 0) {  //since_id を最新のものに変更
+                    var new_since_id = tweetItem["id"];
+                    var updated_doc = {"since_id": new_since_id};
+                    db.collection("users").doc(user_id).update(updated_doc);
+                }
+                i++;
 
                 var entities = tweetItem["entities"];
                 if(entities["urls"].length != 0){ //entities のurls が空でなかったら、シェアしたlinkあり
@@ -32,17 +42,11 @@ const twitterApiGet = function (url: string, params: any, user_id: string) {
                     array.rt = tweetItem["retweet_count"];
                     array.fav = tweetItem["favorite_count"];
                     array.createdAt = tweetItem["created_at"];
-                    console.log(array);
-                    new_since_id = tweetItem["id"];
-
+                    console.log("array",array);
                     //一つ一つのarray をDBに入れていく
                    await addDataToDb(array);
                 }
             });
-            //since_id を最新のものに変更
-            var updated_doc = {"since_id": new_since_id };
-            db.collection("users").doc(user_id).update(updated_doc);
-
             resolve();
         });
         },2000);
@@ -57,8 +61,6 @@ const addDataToDb = function (data: any) {
     })
 };
 
-//article のimage とtitle をupdate する関数
-
 
 (async ()=>{
     try {
@@ -68,10 +70,24 @@ const addDataToDb = function (data: any) {
             .then(async(snapshot) =>{
                 for await(let doc of snapshot.docs){
                     var s_name: string = doc.data().screen_name;
-                    var since_id: string = doc.data().since_id;
+                    var since_id: string | null = String(doc.data().since_id); //since_id はnumber型で収納されるため、stringに変換
                     var user_id: string = doc.id;
                     console.log(user_id);
-                    var params: any = {screen_name: s_name,include_rts: true, exclude_replies: true, since_id: since_id}; //suadd のsince_id: 1246277346417504256
+                    if(since_id === ""){
+                        var params: any = {
+                            screen_name: s_name,
+                            include_rts: true,
+                            exclude_replies: true
+                        };
+                    }else {
+                        var params: any = {
+                            screen_name: s_name,
+                            include_rts: true,
+                            exclude_replies: true,
+                            since_id: since_id
+                        }; //suadd のsince_id: 1246277346417504256 , fukkyy のsince_id: 1247372966100267000
+                    }
+                    console.log("params",params);
                     await twitterApiGet(url,params,user_id);
                 }
             });
