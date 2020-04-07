@@ -1,4 +1,6 @@
-import {consumer_key,consumer_secret,access_token_key,access_token_secret} from './twitter_config'
+// unused file
+
+import {consumer_key,consumer_secret,access_token_key,access_token_secret} from '../functions/src/twitter_config'
 import {db} from '../src/firebase'
 import set = Reflect.set;
 

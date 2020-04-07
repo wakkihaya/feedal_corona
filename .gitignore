@@ -23,4 +23,4 @@ yarn-error.log*
 # secret info
 firebase-key.json
 src/firebase.ts
-/script/twitter_config.ts
+/feedal-corona/functions/src/twitter_config.ts
