@@ -1,20 +1,20 @@
 import * as functions from 'firebase-functions';
-import {db} from '../../src/firebase'
+import {db} from './cloudfunction'
 
-var Twitter = require("twitter");
+const Twitter = require("twitter");
 
 const consumer_key = functions.config().twitter.consumer_key;
 const consumer_secret = functions.config().twitter.consumer_secret;
 const access_token_key = functions.config().twitter.access_token_key;
 const access_token_secret = functions.config().twitter.access_token_secret;
 
-var client = new Twitter({consumer_key,consumer_secret,access_token_key,access_token_secret});
+const client = new Twitter({consumer_key,consumer_secret,access_token_key,access_token_secret});
 
 const twitterApiGet = function (url: string, params: any, user_id: string) {
     return new Promise((resolve,reject)=>{
         setTimeout(()=>{
             client.get(url,params,(error:any,response:any)=>{
-                var array: any =
+                let array: any =
                     {
                         url: "",
                         image: "",
@@ -28,19 +28,20 @@ const twitterApiGet = function (url: string, params: any, user_id: string) {
                 if(error){
                     console.log(error)
                 }
-                var i = 0;
+                let i = 0;
                 response.forEach(async(tweetItem: any) =>{
                     // console.log(tweetItem["text"]);
                     // console.log(tweetItem["entities"]);
 
                     if(i == 0) {  //since_id を最新のものに変更
-                        var new_since_id = tweetItem["id"];
-                        var updated_doc = {"since_id": new_since_id};
-                        db.collection("users").doc(user_id).update(updated_doc);
+                        let new_since_id = tweetItem["id"];
+                        let updated_doc = {"since_id": new_since_id};
+                        db.collection("users").doc(user_id).update(updated_doc)
+                            .catch(e=>{console.log(e);})
                     }
                     i++;
 
-                    var entities = tweetItem["entities"];
+                    let entities = tweetItem["entities"];
                     if(entities["urls"].length != 0){ //entities のurls が空でなかったら、シェアしたlinkあり
                         array.url = entities["urls"][0].expanded_url;
                         array.comment = tweetItem["text"];
@@ -61,7 +62,8 @@ const twitterApiGet = function (url: string, params: any, user_id: string) {
 //data をfirestore に入れる
 const addDataToDb = function (data: any) {
     return new Promise((resolve, reject)=>{
-        db.collection("articles").add(data);
+        db.collection("articles").add(data)
+            .catch(e =>{console.log(e)});
         resolve();
     })
 };
@@ -70,22 +72,22 @@ const addDataToDb = function (data: any) {
 export async function twitter_execute(){
     try {
         const url: string = 'statuses/user_timeline';
-
         db.collection("users").get()
             .then(async(snapshot: any) =>{
                 for await(let doc of snapshot.docs){
-                    var s_name: string = doc.data().screen_name;
-                    var since_id: string | null = String(doc.data().since_id); //since_id はnumber型で収納されるため、stringに変換
-                    var user_id: string = doc.id;
+                    let s_name: string = doc.data().screen_name;
+                    let since_id: string | null = String(doc.data().since_id); //since_id はnumber型で収納されるため、stringに変換
+                    let user_id: string = doc.id;
                     console.log(user_id);
+                    let params: any = "";
                     if(since_id === ""){
-                        var params: any = {
+                         params = {
                             screen_name: s_name,
                             include_rts: true,
                             exclude_replies: true
                         };
                     }else {
-                        var params: any = {
+                        params = {
                             screen_name: s_name,
                             include_rts: true,
                             exclude_replies: true,
@@ -95,7 +97,9 @@ export async function twitter_execute(){
                     console.log("params",params);
                     await twitterApiGet(url,params,user_id);
                 }
-            });
+            }).catch(e =>{
+                console.log(e);
+        });
     }catch (e) {
         console.log(e)
     }
