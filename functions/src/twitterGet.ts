@@ -10,9 +10,7 @@ const access_token_secret = functions.config().twitter.access_token_secret;
 
 const client = new Twitter({consumer_key,consumer_secret,access_token_key,access_token_secret});
 
-const twitterApiGet = function (url: string, params: any, user_id: string) {
-    return new Promise((resolve,reject)=>{
-        setTimeout(()=>{
+const twitterApiGet = async function (url: string, params: any, user_id: string) {
             client.get(url,params,(error:any,response:any)=>{
                 let array: any =
                     {
@@ -36,8 +34,7 @@ const twitterApiGet = function (url: string, params: any, user_id: string) {
                     if(i == 0) {  //since_id を最新のものに変更
                         let new_since_id = tweetItem["id"];
                         let updated_doc = {"since_id": new_since_id};
-                        db.collection("users").doc(user_id).update(updated_doc)
-                            .catch(e=>{console.log(e);})
+                        await db.collection("users").doc(user_id).update(updated_doc);
                     }
                     i++;
 
@@ -50,29 +47,17 @@ const twitterApiGet = function (url: string, params: any, user_id: string) {
                         array.createdAt = tweetItem["created_at"];
                         console.log("array",array);
                         //一つ一つのarray をDBに入れていく
-                        await addDataToDb(array);
+                        await db.collection("articles").add(array);
                     }
                 });
-                resolve();
             });
-        },2000);
-    })
-};
-
-//data をfirestore に入れる
-const addDataToDb = function (data: any) {
-    return new Promise((resolve, reject)=>{
-        db.collection("articles").add(data)
-            .catch(e =>{console.log(e)});
-        resolve();
-    })
 };
 
 
 export async function twitter_execute(){
     try {
         const url: string = 'statuses/user_timeline';
-        db.collection("users").get()
+        await db.collection("users").get()
             .then(async(snapshot: any) =>{
                 for await(let doc of snapshot.docs){
                     let s_name: string = doc.data().screen_name;
@@ -97,9 +82,7 @@ export async function twitter_execute(){
                     console.log("params",params);
                     await twitterApiGet(url,params,user_id);
                 }
-            }).catch(e =>{
-                console.log(e);
-        });
+            });
     }catch (e) {
         console.log(e)
     }

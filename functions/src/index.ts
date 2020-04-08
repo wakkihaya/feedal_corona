@@ -5,5 +5,6 @@ import * as twitterGet from './twitterGet'
 export const twitterPubSec = functions.pubsub
     .topic('twitterGet').onPublish(message => {
         twitterGet.twitter_execute()
-            .catch(e =>{console.log(e)})
+            .catch(e =>{console.log(e)});
+        return 0;
     });

@@ -4,6 +4,9 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "outDir": "lib",
+    "lib": [
+      "esnext.asynciterable"
+    ],
     "sourceMap": true,
     "skipLibCheck": true,
     "strict": true,
