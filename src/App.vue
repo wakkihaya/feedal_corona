@@ -5,18 +5,18 @@
       <p>Feedal Corona</p>
         <div><font-awesome-icon icon="ellipsis-h" size="1x"/></div>
     </header>
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+      <Home></Home>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from './components/HelloWorld.vue';
+import Home from './components/Home.vue';
 
 
 @Component({
   components: {
-    HelloWorld,
+    Home,
   },
 })
 export default class App extends Vue {}

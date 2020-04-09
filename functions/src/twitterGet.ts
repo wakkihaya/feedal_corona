@@ -10,7 +10,7 @@ const access_token_secret = functions.config().twitter.access_token_secret;
 
 const client = new Twitter({consumer_key,consumer_secret,access_token_key,access_token_secret});
 
-const twitterApiGet = async function (url: string, params: any, user_id: string) {
+const twitterApiGet = async function (url: string, params: any, user_id: string,category: any) {
             client.get(url,params,(error:any,response:any)=>{
                 let array: any =
                     {
@@ -21,7 +21,8 @@ const twitterApiGet = async function (url: string, params: any, user_id: string)
                         rt: null,
                         fav: null,
                         createdAt: "",
-                        user_id: user_id
+                        user_id: user_id,
+                        category: category
                     };
                 if(error){
                     console.log(error)
@@ -63,8 +64,10 @@ export async function twitter_execute(){
                     let s_name: string = doc.data().screen_name;
                     let since_id: string | null = String(doc.data().since_id); //since_id はnumber型で収納されるため、stringに変換
                     let user_id: string = doc.id;
+                    let category = doc.data().category;
+
                     console.log(user_id);
-                    let params: any = "";
+                    let params;
                     if(since_id === ""){
                          params = {
                             screen_name: s_name,
@@ -80,7 +83,7 @@ export async function twitter_execute(){
                         }; //suadd のsince_id: 1246277346417504256 , fukkyy のsince_id: 1247372966100267000
                     }
                     console.log("params",params);
-                    await twitterApiGet(url,params,user_id);
+                    await twitterApiGet(url,params,user_id,category);
                 }
             });
     }catch (e) {
