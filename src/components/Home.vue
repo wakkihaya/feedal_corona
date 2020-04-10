@@ -6,18 +6,25 @@
                 <div class="account">
                     {{article.user_id}}
                 </div>
+                <div class="comment">
+                    {{article.comment}}
+                </div>
                 <div class="url">
-                    {{article.url}}
+                    <a :href="article.url">
+                    <img src="../assets/test.jpg"/>
+                        <div class="title">
+                            title test
+<!--                            {{article.title}}-->
+                        </div>
+                    </a>
                 </div>
-                <div class="title">
-                    {{article.title}}
-                </div>
+
                 <div class="numOfGrade">
                     <div class="rt">
-                        {{article.rt}}
+                        RT {{article.rt}}
                     </div>
                     <div class="fav">
-                        {{article.fav}}
+                        Fav {{article.fav}}
                     </div>
                 </div>
             </div>
@@ -69,6 +76,58 @@ export default class Home extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.container {
+
+}
+
+.feed{
+    h3{
+        background-color: #E14500;
+        color: #fff;
+    }
+    .feed-list{
+        border-bottom: solid 1px #7F828B;
+        padding: 5% 0;
+        .account{
+
+        }
+        .comment{
+            margin: 3%;
+        }
+        .numOfGrade{
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            margin-top: 3%;
+            .rt{
+                margin-right: 5%;
+            }
+        }
+    }
+
+    .url{
+        width: 65%;
+        margin:auto;
+        box-shadow:  0 0 8px #4c4c4c;
+        position: relative;
+        a{
+            text-decoration: none;
+        }
+        img{
+            width: 100%;
+        }
+        .title{
+            position:absolute;
+            bottom:0;
+            height: 20%;
+            width:100%;
+            background-color: rgba(0,0,0,0.7);
+            text-align: center;
+            color: #fff;
+        }
+    }
+}
+
 
 </style>
