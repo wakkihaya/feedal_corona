@@ -10,6 +10,34 @@ const access_token_secret = functions.config().twitter.access_token_secret;
 
 const client = new Twitter({consumer_key,consumer_secret,access_token_key,access_token_secret});
 
+
+//get OGP
+const client_ogp = require('cheerio-httpcli');
+const getOgp = async function(url: string) {
+    return new Promise((resolve,reject) => {
+        client_ogp.fetch(url)
+            .then((result: any) => {
+                let og: { [key: string]: string; } = {};
+                og["title"] = result.$("meta[property='og:title']").attr("content");
+                og["desc"] = result.$("meta[property='og:description']").attr("content");
+                og["img"] = result.$("meta[property='og:image']").attr("content");
+                if(og["title"] === undefined){
+                    og["title"] = "";
+                }
+                if(og["img"] === undefined){
+                    og["img"] = "https://upload.wikimedia.org/wikipedia/commons/2/2a/Flag_of_None.svg"; //none image
+                }
+                if(og["desc"] === undefined){
+                    og["desc"] = "";
+                }
+                resolve(og);
+            }).catch((e: any) => {
+            console.log(e)
+        })
+    })
+};
+
+
 const twitterApiGet = async function (url: string, params: any, user_id: string,category: any) {
             client.get(url,params,(error:any,response:any)=>{
                 let array: any =
@@ -35,7 +63,7 @@ const twitterApiGet = async function (url: string, params: any, user_id: string,
                     if(i == 0) {  //since_id を最新のものに変更
                         let new_since_id = tweetItem["id"];
                         let updated_doc = {"since_id": new_since_id};
-                        await db.collection("users").doc(user_id).update(updated_doc);
+                       await db.collection("users").doc(user_id).update(updated_doc);
                     }
                     i++;
 
@@ -46,6 +74,11 @@ const twitterApiGet = async function (url: string, params: any, user_id: string,
                         array.rt = tweetItem["retweet_count"];
                         array.fav = tweetItem["favorite_count"];
                         array.createdAt = tweetItem["created_at"];
+
+                        const og_array: any = await getOgp(array.url);
+                        array.title = og_array.title;
+                        array.image = og_array.img;
+
                         console.log("array",array);
                         //一つ一つのarray をDBに入れていく
                         await db.collection("articles").add(array);
@@ -53,6 +86,7 @@ const twitterApiGet = async function (url: string, params: any, user_id: string,
                 });
             });
 };
+
 
 
 export async function twitter_execute(){
@@ -90,3 +124,4 @@ export async function twitter_execute(){
         console.log(e)
     }
 }
+
