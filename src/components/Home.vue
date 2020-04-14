@@ -13,7 +13,7 @@
                         {{user.user_name}}
                     </div>
                     <div class="screen_name" v-if="user.id===article.user_id">
-                        {{user.screen_name}}
+                        @{{user.screen_name}}
                     </div>
                 </div>
                 <div class="comment">
@@ -101,7 +101,7 @@ export default class Home extends Vue {
     }
     .feed-list{
         border-bottom: solid 1px #7F828B;
-        padding: 5% 0;
+        padding: 5% 5%;
         .account{
 
         }
@@ -138,6 +138,21 @@ export default class Home extends Vue {
             background-color: rgba(0,0,0,0.7);
             text-align: center;
             color: #fff;
+        }
+    }
+
+    .account{
+        display: flex;
+        flex-direction: row;
+        .account_image{
+            border-radius: 5px;
+        }
+        .user_name{
+            padding-left: 3%;
+            width: 10%;
+        }
+        .screen_name{
+            padding-left: 3%
         }
     }
 }
