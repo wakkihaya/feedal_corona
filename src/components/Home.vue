@@ -5,7 +5,9 @@
             <div class="feed-list" v-for = "article in article_list" v-bind:key="article">
                 <div class="account" v-for ="user in user_list" v-bind:key = "user">
                     <div class="account_image" v-if="user.id===article.user_id">
-                        <img :src="user.image" >
+                        <a :href="user.account_link">
+                            <img :src="user.image" >
+                        </a>
                     </div>
                     <div class="user_name" v-if="user.id===article.user_id">
                         {{user.user_name}}
@@ -60,6 +62,7 @@ export default class Home extends Vue {
                      list["user_name"] = doc.data().user_name;
                      list["image"] = doc.data().user_image;
                      list["screen_name"] = doc.data().screen_name;
+                     list["account_link"] = doc.data().account_link;
                      this.user_list.push(list)
                  })
              });
@@ -83,17 +86,6 @@ export default class Home extends Vue {
              });
 
     }
-
-    // public getUserName(userId: string){ //article とuserをどう紐づけするか？
-    //     db.collection("users")
-    //         .doc(userId).get()
-    //         .then(doc =>{
-    //             if(!doc.exists) console.log("error");
-    //             else {
-    //                  this.article_user_list.push(doc.data());
-    //             }
-    //         });
-    // }
 }
 </script>
 

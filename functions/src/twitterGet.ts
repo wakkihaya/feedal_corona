@@ -90,6 +90,17 @@ const twitterApiGet =
             });
 };
 
+const getUserFromTwitter =
+    async function(
+        url: string, params:any, user_id:string){
+    client.get(url,params,async(error:any,response:any)=>{
+        console.log(response);
+        const array:any = {"user_image": response["profile_image_url"]};
+        await db.collection("users").doc(user_id)
+            .update(array)
+    })
+};
+
 
 export async function twitter_execute(){
     try {
@@ -120,6 +131,7 @@ export async function twitter_execute(){
                     }
                     console.log("params",params);
                     await twitterApiGet(url,params,user_id,category);
+                    await getUserFromTwitter('users/show',{screen_name:s_name},user_id);
                 }
             });
     }catch (e) {
@@ -127,3 +139,4 @@ export async function twitter_execute(){
     }
 }
 
+//export GOOGLE_APPLICATION_CREDENTIALS=
