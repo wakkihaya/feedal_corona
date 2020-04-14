@@ -3,15 +3,23 @@
         <div class="feed" v-for = "category in category_list" v-bind:key="category">
             <h3>{{category}}</h3>
             <div class="feed-list" v-for = "article in article_list" v-bind:key="article">
-                <div class="account">
-                    {{article.user_id}}
+                <div class="account" v-for ="user in user_list" v-bind:key = "user">
+                    <div class="account_image" v-if="user.id===article.user_id">
+                        <img :src="user.image" >
+                    </div>
+                    <div class="user_name" v-if="user.id===article.user_id">
+                        {{user.user_name}}
+                    </div>
+                    <div class="screen_name" v-if="user.id===article.user_id">
+                        {{user.screen_name}}
+                    </div>
                 </div>
                 <div class="comment">
                     {{article.comment}}
                 </div>
                 <div class="url">
                     <a :href="article.url">
-                    <img src="../assets/test.jpg"/>
+                    <img :src="article.image" />
                         <div class="title">
                             title test
 <!--                            {{article.title}}-->
@@ -40,9 +48,22 @@ import {db} from '../firebase';
 export default class Home extends Vue {
     category_list: string[] = [];
     article_list: any[] =[];
-    article_user_list: any[] = [];
+    user_list: any[] = [];
 
     async created(){
+
+         await db.collection("users").get()
+             .then((snapshot) =>{
+                 snapshot.forEach((doc) =>{
+                     const list:  { [key: string]: string } = {};
+                     list["id"] = doc.id;
+                     list["user_name"] = doc.data().user_name;
+                     list["image"] = doc.data().user_image;
+                     list["screen_name"] = doc.data().screen_name;
+                     this.user_list.push(list)
+                 })
+             });
+
          await db.collection("categories").get()
             .then((snapshot) =>{
                 snapshot.forEach((doc) =>{
@@ -63,16 +84,16 @@ export default class Home extends Vue {
 
     }
 
-    public getUserName(userId: string){ //article とuserをどう紐づけするか？
-        db.collection("users")
-            .doc(userId).get()
-            .then(doc =>{
-                if(!doc.exists) console.log("error");
-                else {
-                     this.article_user_list.push(doc.data());
-                }
-            });
-    }
+    // public getUserName(userId: string){ //article とuserをどう紐づけするか？
+    //     db.collection("users")
+    //         .doc(userId).get()
+    //         .then(doc =>{
+    //             if(!doc.exists) console.log("error");
+    //             else {
+    //                  this.article_user_list.push(doc.data());
+    //             }
+    //         });
+    // }
 }
 </script>
 

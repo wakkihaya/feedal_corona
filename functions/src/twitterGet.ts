@@ -13,7 +13,8 @@ const client = new Twitter({consumer_key,consumer_secret,access_token_key,access
 
 //get OGP
 const client_ogp = require('cheerio-httpcli');
-const getOgp = async function(url: string) {
+const getOgp =
+    async function(url: string) {
     return new Promise((resolve,reject) => {
         client_ogp.fetch(url)
             .then((result: any) => {
@@ -38,7 +39,9 @@ const getOgp = async function(url: string) {
 };
 
 
-const twitterApiGet = async function (url: string, params: any, user_id: string,category: any) {
+const twitterApiGet =
+    async function
+    (url: string, params: any, user_id: string,category: any) {
             client.get(url,params,(error:any,response:any)=>{
                 let array: any =
                     {
@@ -86,7 +89,6 @@ const twitterApiGet = async function (url: string, params: any, user_id: string,
                 });
             });
 };
-
 
 
 export async function twitter_execute(){
