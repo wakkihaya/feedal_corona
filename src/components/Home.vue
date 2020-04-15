@@ -10,8 +10,8 @@
 
             <div class="feed-content" v-for="category in activeCategory" v-bind:key="category.id">
                 <div>
-                    <div class="feed-list" v-for = "article in article_list" v-bind:key="article"  >
-                        <div v-if="article.category === category.categoryName">
+                    <div class="feed-list" v-for = "article in activeArticles(category.categoryName)" v-bind:key="article.category">
+                        <div>
                             <div class="account" v-for ="user in user_list" v-bind:key = "user" >
                                 <div class="account_image" v-if="user.id===article.user_id">
                                     <a :href="user.account_link">
@@ -65,6 +65,13 @@ export default class Home extends Vue {
     user_list: any[] = [];
     currentTab = 0;
 
+    public activeArticles(value: string){
+        const result = this.article_list.filter(article =>
+            article.category === value
+        );
+        return result
+    }
+
     async created(){
 
          await db.collection("users").get()
@@ -105,12 +112,14 @@ export default class Home extends Vue {
 
     }
 
-        get activeCategory() {
-            const result = this.category_list.filter(category =>
-                category.id === this.currentTab
-            );
-            return result
-        }
+    get activeCategory() {
+        const result = this.category_list.filter(category =>
+           category.id === this.currentTab
+        );
+        return result
+    }
+
+
 
 }
 </script>
