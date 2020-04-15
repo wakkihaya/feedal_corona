@@ -1,40 +1,52 @@
 <template>
     <div class="container">
-        <div class="feed" v-for = "category in category_list" v-bind:key="category">
-            <h3>{{category}}</h3>
-            <div class="feed-list" v-for = "article in article_list" v-bind:key="article">
-                <div class="account" v-for ="user in user_list" v-bind:key = "user">
-                    <div class="account_image" v-if="user.id===article.user_id">
-                        <a :href="user.account_link">
-                            <img :src="user.image" >
-                        </a>
-                    </div>
-                    <div class="user_name" v-if="user.id===article.user_id">
-                        {{user.user_name}}
-                    </div>
-                    <div class="screen_name" v-if="user.id===article.user_id">
-                        @{{user.screen_name}}
-                    </div>
-                </div>
-                <div class="comment">
-                    {{article.comment}}
-                </div>
-                <div class="url">
-                    <a :href="article.url">
-                    <img :src="article.image" />
-                        <div class="title">
-                            title test
-<!--                            {{article.title}}-->
-                        </div>
-                    </a>
-                </div>
+        <div class="feed">
+            <div class="category">
+                <button v-for="(category, index) in category_list"
+                        :key="category.id"
+                        :class="{ active: currentTab === index }"
+                        @click="currentTab = index">{{ category.categoryName }}</button>
+            </div>
 
-                <div class="numOfGrade">
-                    <div class="rt">
-                        RT {{article.rt}}
-                    </div>
-                    <div class="fav">
-                        Fav {{article.fav}}
+            <div class="feed-content" v-for="category in activeCategory" v-bind:key="category.id">
+                <div>
+                    <div class="feed-list" v-for = "article in article_list" v-bind:key="article"  >
+                        <div v-if="article.category === category.categoryName">
+                            <div class="account" v-for ="user in user_list" v-bind:key = "user" >
+                                <div class="account_image" v-if="user.id===article.user_id">
+                                    <a :href="user.account_link">
+                                        <img :src="user.image" >
+                                    </a>
+                                </div>
+                                <div class="user_name" v-if="user.id===article.user_id">
+                                    {{user.user_name}}
+                                </div>
+                                <div class="screen_name" v-if="user.id===article.user_id">
+                                    @{{user.screen_name}}
+                                </div>
+                            </div>
+                            <div class="comment">
+                                {{article.comment}}
+                            </div>
+                            <div class="url">
+                                <a :href="article.url">
+                                    <img :src="article.image" />
+                                    <div class="title">
+                                        title test
+                                        <!--                            {{article.title}}-->
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="numOfGrade">
+                                <div class="rt">
+                                    RT {{article.rt}}
+                                </div>
+                                <div class="fav">
+                                    Fav {{article.fav}}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -48,9 +60,10 @@ import {db} from '../firebase';
 
 @Component
 export default class Home extends Vue {
-    category_list: string[] = [];
+    category_list: { id?: number; categoryName?: string}[] = [{}];
     article_list: any[] =[];
     user_list: any[] = [];
+    currentTab = 0;
 
     async created(){
 
@@ -67,25 +80,38 @@ export default class Home extends Vue {
                  })
              });
 
-         await db.collection("categories").get()
+        //category を追加する
+         await db.collection("categories")
+            .get()
             .then((snapshot) =>{
-                snapshot.forEach((doc) =>{
-                    this.category_list.push(doc.data().name);
+                let i = 0;
+                this.category_list.pop();
+                snapshot.forEach(doc =>{
+                    const array: { id: number; categoryName: string} = {id: i, categoryName: doc.data().name };
+                    i++;
+                    this.category_list.push(array);
                 })
             });
 
          //created時は、category list の初めのもののみ表示。
          await db.collection("articles")
-             .where("category","==",this.category_list[0])
              .get()
              .then((snapshot) =>{
-                 snapshot.forEach(async (doc)=>{
+                 snapshot.forEach(doc=>{
                      this.article_list.push(doc.data());
-                    // await this.getUserName(doc.data().user_id);
                  })
              });
 
+
     }
+
+        get activeCategory() {
+            const result = this.category_list.filter(category =>
+                category.id === this.currentTab
+            );
+            return result
+        }
+
 }
 </script>
 
@@ -95,7 +121,7 @@ export default class Home extends Vue {
 }
 
 .feed{
-    h3{
+    .category{
         background-color: #E14500;
         color: #fff;
     }
