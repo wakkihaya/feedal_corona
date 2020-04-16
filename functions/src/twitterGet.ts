@@ -14,64 +14,62 @@ const client = new Twitter({consumer_key,consumer_secret,access_token_key,access
 //get OGP
 const client_ogp = require('cheerio-httpcli');
 const getOgp =
-    async function(url: string) {
-    return new Promise((resolve,reject) => {
-        client_ogp.fetch(url)
-            .then((result: any) => {
-                let og: { [key: string]: string; } = {};
-                og["title"] = result.$("meta[property='og:title']").attr("content");
-                og["desc"] = result.$("meta[property='og:description']").attr("content");
-                og["img"] = result.$("meta[property='og:image']").attr("content");
-                if(og["title"] === undefined){
-                    og["title"] = "";
-                }
-                if(og["img"] === undefined){
-                    og["img"] = "https://upload.wikimedia.org/wikipedia/commons/2/2a/Flag_of_None.svg"; //none image
-                }
-                if(og["desc"] === undefined){
-                    og["desc"] = "";
-                }
-                resolve(og);
-            }).catch((e: any) => {
-            console.log(e)
+    async function(url: string){
+        return new Promise(resolve=> {
+            client_ogp.fetch(url)
+                .then((result: any) => {
+                    let og: { [key: string]: string; } = {};
+                    og["title"] = result.$("meta[property='og:title']").attr("content");
+                    og["desc"] = result.$("meta[property='og:description']").attr("content");
+                    og["img"] = result.$("meta[property='og:image']").attr("content");
+                    if (og["title"] === undefined) {
+                        og["title"] = "";
+                    }
+                    if (og["img"] === undefined) {
+                        og["img"] = "https://upload.wikimedia.org/wikipedia/commons/2/2a/Flag_of_None.svg"; //none image
+                    }
+                    if (og["desc"] === undefined) {
+                        og["desc"] = "";
+                    }
+                    console.log("in ogp");
+                    console.log("og nai", og)
+                    resolve(og);
+                }).catch((e: any) => {
+                console.log(e)
+            })
         })
-    })
-};
+    };
 
 
 const twitterApiGet =
     async function
     (url: string, params: any, user_id: string,category: any) {
-            client.get(url,params,(error:any,response:any)=>{
-                let array: any =
-                    {
-                        url: "",
-                        image: "",
-                        title: "",
-                        comment: "",
-                        rt: null,
-                        fav: null,
-                        createdAt: "",
-                        user_id: user_id,
-                        category: category
-                    };
-                if(error){
-                    console.log(error)
-                }
+        return new Promise(resolve => {
+            client.get(url,params,async (error:any,response:any)=>{
                 let i = 0;
-                response.forEach(async(tweetItem: any) =>{
-                    // console.log(tweetItem["text"]);
-                    // console.log(tweetItem["entities"]);
+                for await (let tweetItem of response){
+                    let array: any =
+                        {
+                            url: "",
+                            image: "",
+                            title: "",
+                            comment: "",
+                            rt: null,
+                            fav: null,
+                            createdAt: "",
+                            user_id: user_id,
+                            category: category
+                        };
 
                     if(i == 0) {  //since_id を最新のものに変更
                         let new_since_id = tweetItem["id"];
                         let updated_doc = {"since_id": new_since_id};
-                       await db.collection("users").doc(user_id).update(updated_doc);
+                        await db.collection("users").doc(user_id).update(updated_doc);
                     }
                     i++;
 
                     let entities = tweetItem["entities"];
-                    if(entities["urls"].length != 0){ //entities のurls が空でなかったら、シェアしたlinkあり
+                    if (entities["urls"].length != 0) { //entities のurls が空でなかったら、シェアしたlinkあり
                         array.url = entities["urls"][0].expanded_url;
                         array.comment = tweetItem["text"];
                         array.rt = tweetItem["retweet_count"];
@@ -82,13 +80,16 @@ const twitterApiGet =
                         array.title = og_array.title;
                         array.image = og_array.img;
 
-                        console.log("array",array);
+                        console.log("array", array);
                         //一つ一つのarray をDBに入れていく
                         await db.collection("articles").add(array);
                     }
-                });
+                }
             });
-};
+            resolve();
+        });
+    };
+
 
 const getUserFromTwitter =
     async function(

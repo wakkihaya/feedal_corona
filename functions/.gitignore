@@ -9,4 +9,6 @@ node_modules/
 
 # secret key
 src/twitter_config.ts
+src/test.ts
 /testScript
+
