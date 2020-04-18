@@ -31,7 +31,7 @@
                                 <a :href="article.url">
                                     <img :src="article.image" />
                                     <div class="title">
-                                        title test
+                                        {{article.title}}
                                         <!--                            {{article.title}}-->
                                     </div>
                                 </a>
