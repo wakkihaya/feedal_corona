@@ -2,16 +2,15 @@
     <div class="container">
         <div class="feed">
             <div class="category">
-                <button v-for="(category, index) in category_list"
+                <div class="tab"
+                        v-for="(category, index) in category_list"
                         :key="category.id"
                         :class="{ active: currentTab === index }"
-                        @click="currentTab = index">{{ category.categoryName }}</button>
+                        @click="currentTab = index">{{ category.categoryName }}</div>
             </div>
 
             <div class="feed-content" v-for="category in activeCategory" v-bind:key="category.id">
-                <div>
                     <div class="feed-list" v-for = "article in activeArticles(category.categoryName)" v-bind:key="article.category">
-                        <div>
                             <div class="account" v-for ="user in user_list" v-bind:key = "user" >
                                 <div class="account_image" v-if="user.id===article.user_id">
                                     <a :href="user.account_link">
@@ -48,8 +47,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+
         </div>
     </div>
 </template>
@@ -131,63 +129,89 @@ export default class Home extends Vue {
 
 .feed{
     .category{
-        background-color: #E14500;
-        color: #fff;
-    }
-    .feed-list{
-        border-bottom: solid 1px #7F828B;
-        padding: 5% 5%;
-        .account{
-
+        padding-top: 5px;
+        color: #E14500;
+        display: flex;
+        position:fixed;
+        width: 100%;
+        top: 10vh;
+        z-index: 5;
+        background-color: #fff;
+        .tab{
+            width: 50%;
+            height: 6vh;
+            line-height: 6vh;
+            border: solid 1px #E14500;
+            border-radius: 15px 15px 0 0;
         }
-        .comment{
-            margin: 3%;
-        }
-        .numOfGrade{
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            margin-top: 3%;
-            .rt{
-                margin-right: 5%;
-            }
-        }
-    }
-
-    .url{
-        width: 65%;
-        margin:auto;
-        box-shadow:  0 0 8px #4c4c4c;
-        position: relative;
-        a{
-            text-decoration: none;
-        }
-        img{
-            width: 100%;
-        }
-        .title{
-            position:absolute;
-            bottom:0;
-            height: 20%;
-            width:100%;
-            background-color: rgba(0,0,0,0.7);
-            text-align: center;
+        .active{
+            border: solid 1px #E14500;
+            background-color: #E14500;
             color: #fff;
         }
     }
+    .feed-content {
+        top: 18vh;
+        position: absolute;
+        .feed-list {
+            border-bottom: solid 1px #7F828B;
+            padding: 5% 5%;
+            .comment {
+                margin: 3%;
+            }
+            .numOfGrade {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                margin-top: 3%;
 
-    .account{
-        display: flex;
-        flex-direction: row;
-        .account_image{
-            border-radius: 5px;
+                .rt {
+                    margin-right: 5%;
+                }
+            }
         }
-        .user_name{
-            padding-left: 3%;
-            width: 10%;
+
+        .url {
+            width: 65%;
+            margin: auto;
+            box-shadow: 0 0 8px #4c4c4c;
+            position: relative;
+
+            a {
+                text-decoration: none;
+            }
+
+            img {
+                width: 100%;
+            }
+
+            .title {
+                position: absolute;
+                bottom: 0;
+                height: 20%;
+                width: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                text-align: center;
+                color: #fff;
+            }
         }
-        .screen_name{
-            padding-left: 3%
+
+        .account {
+            display: flex;
+            flex-direction: row;
+
+            .account_image {
+                border-radius: 5px;
+            }
+
+            .user_name {
+                padding-left: 3%;
+                width: 10%;
+            }
+
+            .screen_name {
+                padding-left: 3%
+            }
         }
     }
 }

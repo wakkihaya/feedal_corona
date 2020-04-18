@@ -38,7 +38,9 @@ export default class App extends Vue {}
   header{
     background-color: #E14500;
     height: 10vh;
-    position:relative;
+    position:fixed;
+      width: 100%;
+      z-index: 10;
   }
 
   header p{
